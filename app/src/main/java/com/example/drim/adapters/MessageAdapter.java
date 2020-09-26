@@ -2,6 +2,7 @@ package com.example.drim.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.provider.Telephony;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +39,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         public TextView tvName;
         public TextView tvDate;
         public TextView tvLastMessage;
+        public TextView tvNew;
 
         public ViewHolder(final View itemView) {
             super(itemView);
@@ -46,6 +48,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             tvName = (TextView) itemView.findViewById(R.id.tvName);
             tvDate = (TextView) itemView.findViewById(R.id.tvDate);
             tvLastMessage = (TextView) itemView.findViewById(R.id.tvLastMessage);
+            tvNew = (TextView) itemView.findViewById(R.id.tvNew);
 
             itemView.setOnClickListener(this);
         }
@@ -108,11 +111,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
         holder.tvDate.setText(formattedDate);
 
-        // Set the images if we have them
-        if (message.contact.id != null) {
-            Glide.with(mContext).load(new PhotoFromContact().retrieveContactPhoto(mContext, message.contact.id)).apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(mContext, 6, 6, "#FFFFFF", 6))).into(holder.ivPfp);
+        // Set the image
+        Glide.with(mContext).load(new PhotoFromContact().retrieveContactPhoto(mContext, message.contact.id)).apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(mContext, 6, 6, "#FFFFFF", 2))).into(holder.ivPfp);
+
+        // Set the new value if it's new
+        if (message.type.equals("1") && message.read.equals("0")) {
+            holder.tvNew.setVisibility(View.VISIBLE);
         } else {
-            Glide.with(mContext).load(mContext.getResources().getDrawable(R.drawable.logo)).apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(mContext, 6, 6, "#FFFFFF", 6))).into(holder.ivPfp);
+            holder.tvNew.setVisibility(View.GONE);
         }
     }
 

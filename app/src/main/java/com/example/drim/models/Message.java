@@ -9,6 +9,7 @@ public class Message {
     public String timestamp;
     public String id;
     public String read;
+    public String type;
 
     public Message() {}
 }

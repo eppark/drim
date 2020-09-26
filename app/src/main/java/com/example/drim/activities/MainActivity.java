@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private EndlessRecyclerViewScrollListener scrollListener;
 
     // Sound player
-    MediaPlayer mp;
+    MediaPlayer mp = null;
 
     public static int LIMIT = 50;
 
@@ -66,8 +66,10 @@ public class MainActivity extends AppCompatActivity {
         mContext = this;
 
         // Play sound at start
-        mp = MediaPlayer.create(getApplicationContext(), R.raw.startup);
-        mp.start();
+        if (getIntent() == null || getIntent().getExtras() == null || !getIntent().hasExtra("music")) {
+            mp = MediaPlayer.create(getApplicationContext(), R.raw.startup);
+            mp.start();
+        }
 
         // Request perms
         ActivityCompat.requestPermissions(MainActivity.this,
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 1);
 
         // Ask to be the default SMS app
-        openSMSappChooser();
+        //openSMSappChooser();
 
         // Populate the contacts list
         contactList = new ArrayList<>();
@@ -183,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                     message.timestamp = cursor.getString(cursor.getColumnIndex("date"));
                                     message.read = cursor.getString(cursor.getColumnIndex("read"));
+                                    message.type = cursor.getString(cursor.getColumnIndex("type"));
                                     smsInbox.add(0, message);
                                 } while (cursor.moveToPrevious());
                             }

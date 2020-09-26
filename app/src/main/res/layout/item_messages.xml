@@ -3,15 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingLeft="16dp"
-    android:paddingTop="16dp"
-    android:paddingRight="16dp">
+    android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/ivPfp"
         android:layout_width="64dp"
         android:layout_height="64dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         tools:srcCompat="@tools:sample/avatars" />
 
     <View
@@ -28,19 +27,20 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="4dp"
         android:layout_marginRight="4dp"
         android:layout_toStartOf="@id/tvDate"
         android:layout_toLeftOf="@id/tvDate"
-        android:textColor="@android:color/white"
         android:layout_toEndOf="@+id/ivPfp"
         android:layout_toRightOf="@+id/ivPfp"
         android:ellipsize="end"
         android:fontFamily="@font/sspbold"
         android:maxLines="1"
         android:singleLine="true"
+        android:textColor="@android:color/white"
         android:textSize="18sp"
-        tools:text="Kyoko Kirigirigirigirigirigirigirigirigirigiri"
-        android:layout_marginEnd="4dp" />
+        tools:text="Kyoko Kirigirigirigirigirigirigirigirigirigiri" />
 
     <TextView
         android:id="@+id/tvLastMessage"
@@ -49,12 +49,13 @@
         android:layout_below="@+id/tvName"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:textColor="@android:color/white"
         android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
         android:layout_toEndOf="@+id/ivPfp"
         android:layout_toRightOf="@+id/ivPfp"
         android:ellipsize="end"
         android:maxLines="2"
+        android:textColor="@android:color/white"
         tools:text="asdfasdfkjasdfkjas;dfjaskdfjasdklfjasd fas df asd fa sd f asd f as df as df as df asdf a sdf a sdf a sdf a sdf asd f asdfasd f asd f asd f asd f asd f asd f asd f asd f asd f asdf asdf" />
 
     <TextView
@@ -63,6 +64,25 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:textColor="#E3E3E3"
         tools:text="Sep 24" />
+
+    <TextView
+        android:id="@+id/tvNew"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/sspbold"
+        android:shadowColor="@color/colorAccent"
+        android:shadowDx="0"
+        android:shadowDy="2"
+        android:shadowRadius="24"
+        android:text="NEW!"
+        android:textColor="@android:color/white"
+        android:textSize="18sp" />
 </RelativeLayout>

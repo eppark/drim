@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,6 +13,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Telephony;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -106,47 +108,57 @@ public class TextingActivity extends AppCompatActivity {
                     // Don't let the user click send too many times
                     binding.btnSend.setEnabled(false);
 
-                    // Set the intents to check if it works
-                    // set pendingIntent for sent & delivered
-                    PendingIntent sentIntent = PendingIntent.getBroadcast(mContext, 100, new
-                            Intent("SENT"), 0);
+                    if (!isDefaultSmsApp()) {
+                        // Set the intents to check if it works
+                        // set pendingIntent for sent & delivered
+                        PendingIntent sentIntent = PendingIntent.getBroadcast(mContext, 100, new
+                                Intent("SENT"), 0);
 
-                    PendingIntent deliveryIntent = PendingIntent.getBroadcast(mContext, 200, new
-                            Intent("DELIVERED"), 0);
+                        PendingIntent deliveryIntent = PendingIntent.getBroadcast(mContext, 200, new
+                                Intent("DELIVERED"), 0);
 
-                    registerReceiver(new BroadcastReceiver() {
-                        @Override
-                        public void onReceive(Context context, Intent intent) {
-                            int resultCode = getResultCode();
-                            switch (resultCode) {
-                                case TextingActivity.RESULT_OK:
-                                    // If the message was sent, we can clear everything
-                                    binding.etSend.getText().clear();
-                                    binding.btnSend.setEnabled(true);
-                                    break;
-                                case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                                    binding.btnSend.setEnabled(true);
-                                    Toast.makeText(mContext, "Could not send message.", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case SmsManager.RESULT_ERROR_NO_SERVICE:
-                                    binding.btnSend.setEnabled(true);
-                                    Toast.makeText(mContext, "Could not send message: no service.", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case SmsManager.RESULT_ERROR_NULL_PDU:
-                                    binding.btnSend.setEnabled(true);
-                                    Toast.makeText(mContext, "Could not send message: null PDU.", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case SmsManager.RESULT_ERROR_RADIO_OFF:
-                                    binding.btnSend.setEnabled(true);
-                                    Toast.makeText(mContext, "Could not send message: radio off", Toast.LENGTH_SHORT).show();
-                                    break;
+                        registerReceiver(new BroadcastReceiver() {
+                            @Override
+                            public void onReceive(Context context, Intent intent) {
+                                int resultCode = getResultCode();
+                                switch (resultCode) {
+                                    case TextingActivity.RESULT_OK:
+                                        // If the message was sent, we can clear everything
+                                        binding.etSend.getText().clear();
+                                        binding.btnSend.setEnabled(true);
+                                        break;
+                                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                                        binding.btnSend.setEnabled(true);
+                                        Toast.makeText(mContext, "Could not send message.", Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+                                        binding.btnSend.setEnabled(true);
+                                        Toast.makeText(mContext, "Could not send message: no service.", Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case SmsManager.RESULT_ERROR_NULL_PDU:
+                                        binding.btnSend.setEnabled(true);
+                                        Toast.makeText(mContext, "Could not send message: null PDU.", Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+                                        binding.btnSend.setEnabled(true);
+                                        Toast.makeText(mContext, "Could not send message: radio off", Toast.LENGTH_SHORT).show();
+                                        break;
+                                }
                             }
-                        }
-                    }, new IntentFilter("SENT"));
+                        }, new IntentFilter("SENT"));
 
-                    // Send the message
-                    SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage(phoneNum, null, textMessage, sentIntent, null);
+                        // Send the message
+                        SmsManager smsManager = SmsManager.getDefault();
+                        smsManager.sendTextMessage(phoneNum, null, textMessage, sentIntent, null);
+                    } else {
+                        // Manually write the message to the provider
+                        ContentValues values = new ContentValues();
+                        values.put(Telephony.Sms.ADDRESS, currentContact.number);
+                        values.put(Telephony.Sms.BODY, textMessage);
+                        getContentResolver().insert(Uri.parse("content://sms/sent"), values);
+                        binding.btnSend.setEnabled(true);
+                        binding.etSend.getText().clear();
+                    }
                 }
             }
         });
@@ -166,15 +178,13 @@ public class TextingActivity extends AppCompatActivity {
         } else {
             binding.tvNumber.setText("");
         }
-        // Set the images if we have them
-        if (contact.id != null) {
-            Glide.with(this).load(new PhotoFromContact().retrieveContactPhoto(mContext, contact.id)).apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(this, 6, 6, "#FFFFFF", 6))).into(binding.ivPfp);
-        } else {
-            Glide.with(this).load(this.getResources().getDrawable(R.drawable.logo)).apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(this, 6, 6, "#FFFFFF", 6))).into(binding.ivPfp);
-        }
+        // Set the image
+        Glide.with(this).load(new PhotoFromContact().retrieveContactPhoto(mContext, contact.id)).apply(RequestOptions.bitmapTransform(new RoundedCornersTransformation(this, 6, 6, "#FFFFFF", 2))).into(binding.ivPfp);
 
         populateTexts();
         myHandler.postDelayed(mRefreshMessagesRunnable, POLL_INTERVAL);
+
+        markMessagesRead();
     }
 
     // Populate the texts
@@ -344,5 +354,28 @@ public class TextingActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         myHandler.removeCallbacks(mRefreshMessagesRunnable);
+    }
+
+    // Mark messages as read
+    private void markMessagesRead() {
+        Uri uri = Uri.parse("content://sms/inbox");
+        Cursor cursor = getContentResolver().query(uri, null, "thread_id=" + currentContact.threadid + " AND read=0", null, null);
+        if (cursor != null) {
+            cursor.moveToLast();
+            if (cursor.getCount() > 0) {
+                do {
+                    String SmsMessageId = cursor.getString(cursor.getColumnIndex("_id"));
+                    ContentValues values = new ContentValues();
+                    values.put("read", true);
+                    getContentResolver().update(Uri.parse("content://sms/inbox"), values, "_id=" + SmsMessageId, null);
+                } while (cursor.moveToPrevious());
+            }
+            cursor.close();
+        }
+    }
+
+    // Check if SMS App is default
+    private boolean isDefaultSmsApp() {
+        return getPackageName().equals(Telephony.Sms.getDefaultSmsPackage(this));
     }
 }
