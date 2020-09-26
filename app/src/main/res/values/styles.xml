@@ -5,6 +5,7 @@
         <item name="colorPrimary">#FF425564</item>
         <item name="colorPrimaryDark">#FF0A1625</item>
         <item name="colorAccent">#FF33669E</item>
+        <item name="android:windowBackground">@drawable/loading</item>
     </style>
 
 </resources>

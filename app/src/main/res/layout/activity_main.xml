@@ -120,34 +120,4 @@
         app:backgroundTint="#FF33669E"
         app:srcCompat="@drawable/composebold" />
 
-    <ImageView
-        android:id="@+id/loadingScreen"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:srcCompat="@drawable/gradientbackground"
-        tools:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/loadingLogo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="48dp"
-        android:layout_marginRight="48dp"
-        android:alpha="0.2"
-        android:foregroundGravity="center_vertical|center"
-        app:srcCompat="@drawable/logo"
-        tools:visibility="gone" />
-
-    <TextView
-        android:id="@+id/loadingText"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fontFamily="@font/hopespeak"
-        android:gravity="center|center_horizontal|center_vertical"
-        android:text="Hope's Peak Academy"
-        android:textColor="@android:color/white"
-        android:textSize="36sp"
-        tools:visibility="gone" />
-
 </RelativeLayout>

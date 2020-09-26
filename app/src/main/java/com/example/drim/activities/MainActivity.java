@@ -8,11 +8,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
+import android.app.role.RoleManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
@@ -40,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<Map<String, String>> contactList;
     private EndlessRecyclerViewScrollListener scrollListener;
 
+    // Sound player
+    MediaPlayer mp;
+
     public static int LIMIT = 50;
 
     // Getting the inbox
@@ -57,18 +63,19 @@ public class MainActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        // Show loading
-        binding.loadingLogo.setVisibility(View.VISIBLE);
-        binding.loadingScreen.setVisibility(View.VISIBLE);
-        binding.loadingText.setVisibility(View.VISIBLE);
-        binding.floatingActionButton.setVisibility(View.GONE);
-
         mContext = this;
+
+        // Play sound at start
+        mp = MediaPlayer.create(getApplicationContext(), R.raw.startup);
+        mp.start();
 
         // Request perms
         ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS, Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.RECEIVE_MMS},
+                new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS, Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.RECEIVE_MMS, Manifest.permission.WAKE_LOCK},
                 1);
+
+        // Ask to be the default SMS app
+        openSMSappChooser();
 
         // Populate the contacts list
         contactList = new ArrayList<>();
@@ -128,12 +135,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-
-        // Rounded corners with border
-        //Glide.with(this).load("http://scareface.jpeg")
-        //       .apply(RequestOptions.bitmapTransform(
-        //              new RoundedCornersTransformation(this, sCorner, sMargin, sColor, sBorder))).into(mImageViewBorder);
     }
 
     private void initialQuery() {
@@ -141,9 +142,6 @@ public class MainActivity extends AppCompatActivity {
         adapter.clear();
         messageList.clear();
         fetchInboxSms(0);
-
-        // Hide loading screen
-        hideLoading();
     }
 
     private void fetchInboxSms(int page) {
@@ -201,6 +199,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        initialQuery();
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
@@ -211,10 +215,9 @@ public class MainActivity extends AppCompatActivity {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(MainActivity.this, "Some permissions were denied", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Some permissions were denied. App may not work properly.", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -283,14 +286,37 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         phones.close();
         people.close();
+        if (mp != null || mp.isPlaying()) {
+            mp.stop();
+            mp.release();
+        }
+        mp = null;
     }
 
-    private void hideLoading() {
-        // Now we can hide the loading
-        binding.loadingLogo.setVisibility(View.GONE);
-        binding.loadingScreen.setVisibility(View.GONE);
-        binding.loadingText.setVisibility(View.GONE);
-        binding.floatingActionButton.setVisibility(View.VISIBLE);
+    // Ask to be the default SMS app
+    private void openSMSappChooser() {
+        if (!isDefaultSmsApp()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                RoleManager roleManager = getSystemService(RoleManager.class);
+                if (roleManager.isRoleAvailable(RoleManager.ROLE_SMS)) {
+                    if (roleManager.isRoleHeld(RoleManager.ROLE_SMS)) {
+                    } else {
+                        Intent roleRequestIntent = roleManager.createRequestRoleIntent(
+                                RoleManager.ROLE_SMS);
+                        startActivityForResult(roleRequestIntent, 0);
+                    }
+                }
+            } else {
+                Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+                intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, getPackageName());
+                startActivityForResult(intent, 0);
+            }
+        }
+    }
+
+    // Check if SMS App is default
+    private boolean isDefaultSmsApp() {
+        return getPackageName().equals(Telephony.Sms.getDefaultSmsPackage(this));
     }
 
 }

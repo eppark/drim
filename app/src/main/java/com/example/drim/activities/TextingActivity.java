@@ -3,7 +3,11 @@ package com.example.drim.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,7 +16,6 @@ import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -99,9 +102,51 @@ public class TextingActivity extends AppCompatActivity {
                     } else if (currentContact.name != null) {
                         phoneNum = currentContact.name;
                     }
+
+                    // Don't let the user click send too many times
+                    binding.btnSend.setEnabled(false);
+
+                    // Set the intents to check if it works
+                    // set pendingIntent for sent & delivered
+                    PendingIntent sentIntent = PendingIntent.getBroadcast(mContext, 100, new
+                            Intent("SENT"), 0);
+
+                    PendingIntent deliveryIntent = PendingIntent.getBroadcast(mContext, 200, new
+                            Intent("DELIVERED"), 0);
+
+                    registerReceiver(new BroadcastReceiver() {
+                        @Override
+                        public void onReceive(Context context, Intent intent) {
+                            int resultCode = getResultCode();
+                            switch (resultCode) {
+                                case TextingActivity.RESULT_OK:
+                                    // If the message was sent, we can clear everything
+                                    binding.etSend.getText().clear();
+                                    binding.btnSend.setEnabled(true);
+                                    break;
+                                case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                                    binding.btnSend.setEnabled(true);
+                                    Toast.makeText(mContext, "Could not send message.", Toast.LENGTH_SHORT).show();
+                                    break;
+                                case SmsManager.RESULT_ERROR_NO_SERVICE:
+                                    binding.btnSend.setEnabled(true);
+                                    Toast.makeText(mContext, "Could not send message: no service.", Toast.LENGTH_SHORT).show();
+                                    break;
+                                case SmsManager.RESULT_ERROR_NULL_PDU:
+                                    binding.btnSend.setEnabled(true);
+                                    Toast.makeText(mContext, "Could not send message: null PDU.", Toast.LENGTH_SHORT).show();
+                                    break;
+                                case SmsManager.RESULT_ERROR_RADIO_OFF:
+                                    binding.btnSend.setEnabled(true);
+                                    Toast.makeText(mContext, "Could not send message: radio off", Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
+                        }
+                    }, new IntentFilter("SENT"));
+
+                    // Send the message
                     SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage(phoneNum, null, textMessage, null, null);
-                    binding.etSend.getText().clear();
+                    smsManager.sendTextMessage(phoneNum, null, textMessage, sentIntent, null);
                 }
             }
         });
