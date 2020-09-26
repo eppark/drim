@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="16dp"
+    android:paddingTop="16dp"
+    android:paddingRight="16dp">
+
+    <ImageView
+        android:id="@+id/ivPfp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/ivPfp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="4dp"
+        android:layout_toStartOf="@id/tvDate"
+        android:layout_toLeftOf="@id/tvDate"
+        android:textColor="@android:color/white"
+        android:layout_toEndOf="@+id/ivPfp"
+        android:layout_toRightOf="@+id/ivPfp"
+        android:ellipsize="end"
+        android:fontFamily="@font/sspbold"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="18sp"
+        tools:text="Kyoko Kirigirigirigirigirigirigirigirigirigiri"
+        android:layout_marginEnd="4dp" />
+
+    <TextView
+        android:id="@+id/tvLastMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvName"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="4dp"
+        android:layout_toEndOf="@+id/ivPfp"
+        android:layout_toRightOf="@+id/ivPfp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        tools:text="asdfasdfkjasdfkjas;dfjaskdfjasdklfjasd fas df asd fa sd f asd f as df as df as df asdf a sdf a sdf a sdf a sdf asd f asdfasd f asd f asd f asd f asd f asd f asd f asd f asd f asdf asdf" />
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:textColor="#E3E3E3"
+        tools:text="Sep 24" />
+</RelativeLayout>

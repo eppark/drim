@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/tvText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/incoming_speech_bubble"
+        android:lineSpacingExtra="2dp"
+        android:maxWidth="200dp"
+        android:paddingStart="24dp"
+        android:paddingLeft="24dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="8dp"
+        android:textColor="@android:color/white"
+        android:linksClickable="true"
+        android:textColorLink="@color/colorLink"
+        android:textSize="14sp"
+        tools:text="o" />
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_toEndOf="@+id/tvText"
+        android:textColor="@color/offWhite"
+        tools:text="Sep 1" />
+</RelativeLayout>
